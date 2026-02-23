@@ -2,84 +2,110 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moduley | The Pro Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Moduley Pro | Elite GPA Calculator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --text-sub: #64748b; --primary: #4f46e5; --border: #e2e8f0; --input-bg: #f1f5f9; --accent: #10b981; --fail: #ef4444; }
-        [data-theme="dark"] { --bg: #020617; --card: #1e293b; --text: #f1f5f9; --text-sub: #94a3b8; --primary: #818cf8; --border: #334155; --input-bg: #0f172a; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; transition: 0.3s; }
-        header { width: 100%; max-width: 600px; padding: 25px 20px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; }
-        #app { width: 100%; max-width: 600px; padding: 0 15px 100px 15px; box-sizing: border-box; }
-        .card { background: var(--card); border-radius: 24px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); border: 1px solid var(--border); }
-        .btn { border: none; padding: 12px 18px; border-radius: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-primary { background: var(--primary); color: white; width: 100%; margin-bottom: 15px; }
-        .btn-secondary { background: var(--accent); color: white; width: 100%; margin-top: 10px; }
-        .btn-outline { background: var(--card); border: 1px solid var(--border); color: var(--text); font-size: 0.8rem; }
-        .weight-selector { display: flex; gap: 8px; margin-bottom: 20px; justify-content: center; }
-        .weight-chip { padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); font-size: 0.75rem; font-weight: 700; cursor: pointer; }
-        .weight-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+        :root { --bg: #f0f4f8; --card: #ffffff; --text: #1e293b; --text-sub: #64748b; --primary: #334155; --accent: #84cc16; --fail: #ef4444; --border: #e2e8f0; --input-bg: #f8fafc; }
+        [data-theme="dark"] { --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --text-sub: #94a3b8; --primary: #38bdf8; --border: #334155; --input-bg: #0f172a; }
         
-        /* New Module Row Design */
-        .module-grid { display: grid; grid-template-columns: 1.5fr 0.6fr 0.8fr 0.8fr 0.8fr 35px; gap: 8px; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
-        @media (max-width: 500px) { .module-grid { grid-template-columns: 1.2fr 0.5fr 0.8fr 0.8fr 30px; } .hide-mobile { display: none; } }
-        
-        input { background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 12px; width: 100%; box-sizing: border-box; font-size: 0.85rem; font-weight: 700; outline: none; }
-        
-        /* TD Toggle Style */
-        .td-toggle { cursor: pointer; font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 8px; background: var(--input-bg); color: var(--text-sub); border: 1px solid var(--border); text-align: center; display: block; margin-top: 5px; }
-        .td-toggle.active { background: var(--primary); color: white; border-color: var(--primary); }
+        body, html { margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; height: 100%; transition: 0.3s; }
 
-        .avg-display { background: var(--primary); color: white; border-radius: 24px; padding: 30px; text-align: center; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .avg-num { font-size: 3.5rem; font-weight: 800; margin: 5px 0; }
-        .pass { background: var(--accent) !important; box-shadow: 0 15px 40px -10px rgba(16, 185, 129, 0.6); transform: scale(1.02); }
-        .fail { background: var(--fail) !important; }
+        /* Splash & Onboarding Screens */
+        .screen { position: fixed; inset: 0; background: #334155; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; padding: 20px; text-align: center; color: white; transition: 0.5s ease-in-out; }
+        .screen.hidden { opacity: 0; pointer-events: none; transform: translateY(-20px); }
+        .logo-icon { width: 100px; height: 100px; background: white; border-radius: 30px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .btn-next { background: #475569; color: white; border: none; padding: 16px 40px; border-radius: 16px; font-weight: 700; cursor: pointer; margin-top: 30px; width: 80%; max-width: 300px; }
+        
+        /* Main Interface */
+        header { width: 100%; max-width: 500px; padding: 20px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; margin: 0 auto; }
+        #app { width: 100%; max-width: 500px; margin: 0 auto; padding: 0 15px 120px 15px; box-sizing: border-box; }
+        
+        .pro-card { background: var(--card); border-radius: 28px; padding: 24px; margin-bottom: 20px; box-shadow: 0 15px 35px -5px rgba(0,0,0,0.05); border: 1px solid var(--border); position: relative; overflow: hidden; }
+        
+        /* Module Grid */
+        .module-grid { display: grid; grid-template-columns: 1.5fr 0.6fr 0.8fr 0.8fr 35px; gap: 10px; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        input { background: var(--input-bg); border: 1.5px solid var(--border); color: var(--text); padding: 12px; border-radius: 14px; width: 100%; box-sizing: border-box; font-size: 0.9rem; font-weight: 700; outline: none; }
+        input:focus { border-color: var(--primary); }
+        
+        .td-toggle { cursor: pointer; font-size: 0.65rem; font-weight: 800; padding: 5px 10px; border-radius: 10px; background: var(--input-bg); color: var(--text-sub); border: 1px solid var(--border); display: inline-block; margin-top: 6px; }
+        .td-toggle.active { background: #e2e8f0; color: #334155; border-color: #334155; }
+
+        /* Results Display (Pic Style) */
+        .result-panel { text-align: center; padding: 40px 20px; background: var(--card); border-radius: 32px; border: 1px solid var(--border); }
+        .avatar-box { width: 100px; height: 100px; background: #f1f5f9; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 50px; border: 4px solid var(--border); }
+        .avg-val { font-size: 3.5rem; font-weight: 800; color: var(--text); margin: 10px 0; }
+        .status-badge { display: inline-block; padding: 8px 20px; border-radius: 20px; font-weight: 800; font-size: 0.9rem; margin-top: 5px; }
+        
+        .weight-chip { padding: 8px 16px; border-radius: 14px; background: var(--card); border: 1px solid var(--border); font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+        .weight-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .btn-action { width: 100%; padding: 18px; border-radius: 18px; font-weight: 800; border: none; cursor: pointer; margin-top: 10px; font-size: 1rem; }
+        .btn-save { background: var(--accent); color: white; box-shadow: 0 10px 20px -5px rgba(132, 204, 22, 0.4); }
+        .btn-add { background: var(--input-bg); color: var(--primary); border: 2px dashed var(--border); }
     </style>
 </head>
 <body>
+
+    <div id="splash" class="screen">
+        <div class="logo-icon">🎓</div>
+        <h2 style="font-weight: 800; font-size: 1.8rem;">Welcome to Moduley</h2>
+        <p style="opacity: 0.8;">Calculate your GPA with speed and precision</p>
+        <button class="btn-next" onclick="nextScreen('splash', 'setup')">Get Started</button>
+    </div>
+
+    <div id="setup" class="screen hidden">
+        <h2 style="font-weight: 800;">Quick Setup</h2>
+        <p style="opacity: 0.8; margin-bottom: 30px;">Choose your University Rule</p>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <div class="weight-chip active" id="w1" onclick="setWeight(40, 60, this)">40/60 TD</div>
+            <div class="weight-chip" id="w2" onclick="setWeight(50, 50, this)">50/50 TD</div>
+        </div>
+        <button class="btn-next" onclick="nextScreen('setup', null)">Continue to Calculator</button>
+    </div>
+
     <header>
-        <h1 style="margin:0; font-weight:800; font-size: 1.6rem; color: var(--primary);">Moduley.</h1>
-        <button class="btn btn-outline" onclick="toggleTheme()" id="tBtn">🌙</button>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="background:var(--primary); color:white; width:35px; height:35px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:800;">M</div>
+            <h1 style="margin:0; font-size: 1.3rem; font-weight: 800;">Moduley.</h1>
+        </div>
+        <button onclick="toggleTheme()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">🌙</button>
     </header>
 
     <div id="app">
-        <div class="weight-selector">
-            <div class="weight-chip active" onclick="setWeight(40, 60, this)">40/60</div>
-            <div class="weight-chip" onclick="setWeight(50, 50, this)">50/50</div>
-            <div class="weight-chip" onclick="setWeight(30, 70, this)">30/70</div>
-        </div>
-
         <div id="capture-area">
-            <div class="card">
-                <div class="module-grid hide-mobile" style="border:none; margin-bottom:5px;">
-                    <label style="font-size:0.6rem; font-weight:800; color:var(--text-sub);">MODULE</label>
-                    <label style="font-size:0.6rem; font-weight:800; color:var(--text-sub);">COEF</label>
-                    <label style="font-size:0.6rem; font-weight:800; color:var(--text-sub);">TD / EXAM</label>
-                    <label style="font-size:0.6rem; font-weight:800; color:var(--text-sub);">FINAL</label>
-                </div>
+            <div class="pro-card">
+                <div style="font-size: 0.7rem; font-weight: 800; color: var(--text-sub); margin-bottom: 15px; letter-spacing: 1px;">MODULE LIST</div>
                 <div id="module-list"></div>
-                <button class="btn btn-primary" style="background: var(--input-bg); color: var(--primary); border: 1px dashed var(--primary); margin-top:10px;" onclick="addModule()">+ Add Module</button>
+                <button class="btn-action btn-add" onclick="addModule()">+ Add New Module</button>
             </div>
 
-            <div class="avg-display" id="avg-box">
-                <div style="font-size: 0.75rem; font-weight: 800; opacity: 0.9; letter-spacing:1px;">SEMESTER AVERAGE</div>
-                <div class="avg-num" id="total-avg">0.00</div>
-                <div id="status" style="font-weight:700; background: rgba(255,255,255,0.2); display: inline-block; padding: 4px 12px; border-radius: 20px;">READY</div>
+            <div class="result-panel">
+                <div class="avatar-box" id="avatar">👤</div>
+                <div id="status-text" style="font-weight: 800; font-size: 1.2rem; color: var(--text-sub);">Ready to calculate</div>
+                <div class="avg-val" id="total-avg">0.00</div>
+                <div id="status-badge" class="status-badge" style="background: #f1f5f9; color: #64748b;">AWAITING DATA</div>
+                <p id="advice-text" style="font-size: 0.8rem; color: var(--text-sub); padding: 0 20px; margin-top: 15px;">Enter your coefficients and grades to see your result.</p>
             </div>
         </div>
-        <button class="btn btn-secondary" onclick="takeScreenshot()">📸 Save as Image</button>
+
+        <button class="btn-action btn-save" onclick="takeScreenshot()">📸 Export Result Image</button>
     </div>
 
     <script>
         let currentTD = 40, currentExam = 60, hasCelebrated = false;
 
+        function nextScreen(curr, next) {
+            document.getElementById(curr).classList.add('hidden');
+            if(next) document.getElementById(next).classList.remove('hidden');
+        }
+
         function toggleTheme() {
             const b = document.documentElement;
             const isD = b.getAttribute('data-theme') === 'dark';
             b.setAttribute('data-theme', isD ? 'light' : 'dark');
-            document.getElementById('tBtn').innerText = isD ? '🌙' : '☀️';
             localStorage.setItem('theme', isD ? 'light' : 'dark');
         }
         if(localStorage.getItem('theme') === 'dark') toggleTheme();
@@ -98,9 +124,10 @@
 
         function toggleTD(btn, id) {
             btn.classList.toggle('active');
-            btn.innerText = btn.classList.contains('active') ? 'TD ON' : 'NO TD';
+            btn.innerText = btn.classList.contains('active') ? 'TD: ENABLED' : 'TD: DISABLED';
             const tdInput = document.querySelector(`#${id} .val-td`);
-            tdInput.style.display = btn.classList.contains('active') ? 'block' : 'none';
+            tdInput.style.opacity = btn.classList.contains('active') ? '1' : '0.3';
+            tdInput.disabled = !btn.classList.contains('active');
             if(!btn.classList.contains('active')) tdInput.value = '';
             calculateAll();
         }
@@ -114,16 +141,13 @@
             
             div.innerHTML = `
                 <div>
-                    <input type="text" placeholder="Name" class="val-name" value="${savedData?.name || ''}" oninput="calculateAll()">
-                    <span class="td-toggle ${isTDActive ? 'active' : ''}" onclick="toggleTD(this, '${id}')">${isTDActive ? 'TD ON' : 'NO TD'}</span>
+                    <input type="text" placeholder="Module" class="val-name" value="${savedData?.name || ''}" oninput="calculateAll()">
+                    <span class="td-toggle ${isTDActive ? 'active' : ''}" onclick="toggleTD(this, '${id}')">${isTDActive ? 'TD: ENABLED' : 'TD: DISABLED'}</span>
                 </div>
-                <input type="number" placeholder="C" class="val-coef" value="${savedData?.coef || ''}" oninput="calculateAll()">
-                <div style="display:flex; flex-direction:column; gap:5px;">
-                    <input type="number" placeholder="TD" class="val-td" value="${savedData?.td || ''}" oninput="validateGrade(this)" style="display: ${isTDActive ? 'block' : 'none'}">
-                    <input type="number" placeholder="Ex" class="val-exam" value="${savedData?.exam || ''}" oninput="validateGrade(this)">
-                </div>
-                <div style="font-weight:800; color:var(--primary); text-align:center" class="m-final hide-mobile">0.00</div>
-                <button class="btn" style="color:#ef4444; background:none; padding:0" onclick="document.getElementById('${id}').remove(); calculateAll();">✕</button>`;
+                <input type="number" placeholder="Coef" class="val-coef" value="${savedData?.coef || ''}" oninput="calculateAll()">
+                <input type="number" placeholder="TD" class="val-td" value="${savedData?.td || ''}" oninput="validateGrade(this)" style="opacity: ${isTDActive ? '1' : '0.3'}" ${isTDActive ? '' : 'disabled'}>
+                <input type="number" placeholder="Ex" class="val-exam" value="${savedData?.exam || ''}" oninput="validateGrade(this)">
+                <button style="color:var(--fail); background:none; border:none; font-size:1.2rem; cursor:pointer;" onclick="document.getElementById('${id}').remove(); calculateAll();">✕</button>`;
             document.getElementById('module-list').appendChild(div);
             calculateAll();
         }
@@ -142,10 +166,6 @@
                 const isTDActive = row.querySelector('.td-toggle').classList.contains('active');
                 
                 let final = (!isTDActive || isNaN(td)) ? ex : (td * (currentTD/100)) + (ex * (currentExam/100));
-                
-                const fDisp = row.querySelector('.m-final');
-                if(fDisp) fDisp.innerText = final.toFixed(2);
-                
                 if (coef > 0) { tP += (final * coef); tC += coef; }
                 saveArr.push({ name: row.querySelector('.val-name').value, coef: cIn.value, td: tdInput.value, exam: ex, hasTD: isTDActive });
             });
@@ -153,42 +173,48 @@
             const avg = tC > 0 ? (tP / tC).toFixed(2) : "0.00";
             document.getElementById('total-avg').innerText = avg;
             
-            const box = document.getElementById('avg-box');
-            const status = document.getElementById('status');
+            const badge = document.getElementById('status-badge');
+            const statusText = document.getElementById('status-text');
+            const advice = document.getElementById('advice-text');
+            const avatar = document.getElementById('avatar');
             const numericAvg = parseFloat(avg);
             
             if(numericAvg >= 10) {
-                box.className = 'avg-display pass';
-                status.innerText = "PASSED ✅";
-                if(!hasCelebrated && numericAvg >= 10) {
-                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#10b981', '#4f46e5', '#ffffff'] });
+                avatar.innerText = "🎓";
+                statusText.innerText = "Excellent Result!";
+                badge.style.background = "#84cc16"; badge.style.color = "white"; badge.innerText = "PASSED SUCCESS";
+                advice.innerText = "You've worked hard and achieved a passing grade. Keep up the momentum!";
+                if(!hasCelebrated) {
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
                     hasCelebrated = true;
                 }
             } else if(numericAvg > 0) {
-                box.className = 'avg-display fail';
-                status.innerText = "FAILED ❌";
-                hasCelebrated = false;
-            } else {
-                box.className = 'avg-display';
-                status.innerText = "READY";
+                avatar.innerText = "📚";
+                statusText.innerText = "Keep pushing!";
+                badge.style.background = "#ef4444"; badge.style.color = "white"; badge.innerText = "RETAKE REQUIRED";
+                advice.innerText = "Don't give up. Identify the weak modules and focus your energy there for the next session.";
                 hasCelebrated = false;
             }
-            localStorage.setItem('mod_final_vFinal', JSON.stringify(saveArr));
+            localStorage.setItem('mod_pro_data', JSON.stringify(saveArr));
         }
 
         function takeScreenshot() {
-            html2canvas(document.getElementById('capture-area'), { backgroundColor: null, scale: 3 }).then(canvas => {
+            html2canvas(document.getElementById('capture-area'), { backgroundColor: null, scale: 3, borderRadius: 32 }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'Moduley-Results.png';
+                link.download = 'Moduley-Pro-Result.png';
                 link.href = canvas.toDataURL();
                 link.click();
             });
         }
 
         window.onload = () => {
-            const saved = JSON.parse(localStorage.getItem('mod_final_vFinal') || '[]');
-            if(saved.length > 0) saved.forEach(m => addModule(m)); else addModule();
-            calculateAll();
+            const saved = JSON.parse(localStorage.getItem('mod_pro_data') || '[]');
+            if(saved.length > 0) {
+                saved.forEach(m => addModule(m));
+                nextScreen('splash', null); // Skip splash if they have data
+            } else {
+                addModule();
+            }
         };
     </script>
 </body>
