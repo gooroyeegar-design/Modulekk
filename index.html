@@ -3,90 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moduley | Custom Calculator</title>
+    <title>Moduley | Instant Calculator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --text-sub: #64748b;
-            --primary: #4f46e5; --border: #e2e8f0; --input-bg: #f1f5f9; --accent: #10b981;
-        }
-        [data-theme="dark"] {
-            --bg: #020617; --card: #1e293b; --text: #f1f5f9; --text-sub: #94a3b8;
-            --primary: #818cf8; --border: #334155; --input-bg: #0f172a;
-        }
-
+        :root { --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --text-sub: #64748b; --primary: #4f46e5; --border: #e2e8f0; --input-bg: #f1f5f9; --accent: #10b981; --fail: #ef4444; }
+        [data-theme="dark"] { --bg: #020617; --card: #1e293b; --text: #f1f5f9; --text-sub: #94a3b8; --primary: #818cf8; --border: #334155; --input-bg: #0f172a; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; transition: 0.3s; }
         header { width: 100%; max-width: 600px; padding: 25px 20px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; }
-        
         #app { width: 100%; max-width: 600px; padding: 0 15px 100px 15px; box-sizing: border-box; }
-        #capture-area { padding: 10px; border-radius: 24px; background: var(--bg); }
-        
         .card { background: var(--card); border-radius: 24px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); border: 1px solid var(--border); }
-        
-        .btn { border: none; padding: 12px 18px; border-radius: 14px; font-weight: 700; cursor: pointer; font-family: inherit; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn { border: none; padding: 12px 18px; border-radius: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
         .btn-primary { background: var(--primary); color: white; width: 100%; margin-bottom: 15px; }
         .btn-secondary { background: var(--accent); color: white; width: 100%; margin-top: 10px; }
         .btn-outline { background: var(--card); border: 1px solid var(--border); color: var(--text); font-size: 0.8rem; }
-        .btn-remove { background: #fee2e2; color: #dc2626; width: 32px; height: 32px; border-radius: 8px; padding: 0; justify-content: center; }
-
-        .weight-selector { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+        .weight-selector { display: flex; gap: 8px; margin-bottom: 20px; justify-content: center; }
         .weight-chip { padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); font-size: 0.75rem; font-weight: 700; cursor: pointer; }
         .weight-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-        .module-grid { display: grid; grid-template-columns: 2fr 0.8fr 1fr 1fr 1fr 40px; gap: 10px; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
-        @media (max-width: 550px) { .module-grid { grid-template-columns: 1.5fr 0.7fr 0.8fr 0.8fr 32px; } .hide-mobile { display: none; } .m-final { font-size: 0.8rem; } }
-
-        label { font-size: 0.6rem; font-weight: 800; color: var(--text-sub); text-transform: uppercase; margin-bottom: 4px; display: block; }
-        input { background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 12px; width: 100%; box-sizing: border-box; font-size: 0.9rem; font-weight: 700; }
-        
-        .avg-display { background: linear-gradient(135deg, var(--primary), #9333ea); color: white; border-radius: 24px; padding: 30px; text-align: center; margin-top: 10px; box-shadow: 0 15px 30px -10px rgba(79, 70, 229, 0.4); }
+        .module-grid { display: grid; grid-template-columns: 2fr 0.7fr 0.8fr 0.8fr 0.8fr 35px; gap: 8px; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+        @media (max-width: 500px) { .module-grid { grid-template-columns: 1.2fr 0.6fr 0.7fr 0.7fr 30px; } .hide-mobile { display: none; } }
+        input { background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 12px; width: 100%; box-sizing: border-box; font-size: 0.9rem; font-weight: 700; outline: none; }
+        input:focus { border-color: var(--primary); }
+        .avg-display { background: var(--primary); color: white; border-radius: 24px; padding: 30px; text-align: center; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .avg-num { font-size: 3.5rem; font-weight: 800; margin: 5px 0; }
-        
-        .footer-tools { margin-top: 20px; display: flex; gap: 10px; }
+        .pass { background: var(--accent) !important; box-shadow: 0 15px 30px -10px rgba(16, 185, 129, 0.5); }
+        .fail { background: var(--fail) !important; box-shadow: 0 15px 30px -10px rgba(239, 68, 68, 0.5); }
     </style>
 </head>
 <body>
-
     <header>
         <h1 style="margin:0; font-weight:800; font-size: 1.6rem; color: var(--primary);">Moduley.</h1>
         <button class="btn btn-outline" onclick="toggleTheme()" id="tBtn">🌙</button>
     </header>
-
     <div id="app">
-        <label style="text-align: center; margin-bottom: 10px;">Select Calculation Rule:</label>
-        <div class="weight-selector" id="wSelector">
+        <div class="weight-selector">
             <div class="weight-chip active" onclick="setWeight(40, 60, this)">40/60</div>
             <div class="weight-chip" onclick="setWeight(50, 50, this)">50/50</div>
             <div class="weight-chip" onclick="setWeight(30, 70, this)">30/70</div>
-            <div class="weight-chip" onclick="setWeight(0, 100, this)">Exam Only</div>
         </div>
-
         <div id="capture-area">
             <div class="card">
-                <div class="module-grid hide-mobile">
-                    <label>Module</label><label>Coef</label><label>TD</label><label>Exam</label><label>Final</label><span></span>
+                <div class="module-grid hide-mobile" style="border:none; margin-bottom:5px;">
+                    <label>Module</label><label>Coef</label><label>TD</label><label>Exam</label><label>Final</label>
                 </div>
                 <div id="module-list"></div>
                 <button class="btn btn-primary" style="background: var(--input-bg); color: var(--primary); border: 1px dashed var(--primary);" onclick="addModule()">+ Add Module</button>
             </div>
-
-            <div class="avg-display">
-                <div style="font-size: 0.8rem; font-weight: 800; opacity: 0.9; letter-spacing: 1px;">SEMESTER AVERAGE</div>
+            <div class="avg-display" id="avg-box">
+                <div style="font-size: 0.75rem; font-weight: 800; opacity: 0.9; letter-spacing:1px;">SEMESTER AVERAGE</div>
                 <div class="avg-num" id="total-avg">0.00</div>
                 <div id="status" style="font-weight:700; background: rgba(255,255,255,0.2); display: inline-block; padding: 4px 12px; border-radius: 20px;">READY</div>
             </div>
         </div>
-
-        <div class="footer-tools">
-            <button class="btn btn-secondary" onclick="takeScreenshot()">📸 Save as Image</button>
-        </div>
+        <button class="btn btn-secondary" onclick="takeScreenshot()">📸 Save as Image</button>
     </div>
-
     <script>
-        let currentTD = 40;
-        let currentExam = 60;
-
+        let currentTD = 40, currentExam = 60;
         function toggleTheme() {
             const b = document.documentElement;
             const isD = b.getAttribute('data-theme') === 'dark';
@@ -99,7 +71,12 @@
         function setWeight(td, em, el) {
             currentTD = td; currentExam = em;
             document.querySelectorAll('.weight-chip').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
+            el.classList.add('active'); calculateAll();
+        }
+
+        function validateGrade(el) {
+            if (el.value > 20) el.value = 20;
+            if (el.value < 0) el.value = 0;
             calculateAll();
         }
 
@@ -109,14 +86,14 @@
             div.className = 'module-grid';
             div.id = id;
             div.innerHTML = `
-                <div><input type="text" placeholder="Name" class="m-name" value="${savedData?.name || ''}" oninput="save()"></div>
-                <div><input type="number" placeholder="1" class="m-coef" value="${savedData?.coef || ''}" oninput="calculateAll()"></div>
-                <div><input type="number" placeholder="TD" class="m-td" value="${savedData?.td || ''}" oninput="calculateAll()"></div>
-                <div><input type="number" placeholder="Ex" class="m-exam" value="${savedData?.exam || ''}" oninput="calculateAll()"></div>
-                <div style="text-align:center; font-weight:800; color:var(--primary)" class="m-final">0.00</div>
-                <button class="btn btn-remove" onclick="document.getElementById('${id}').remove(); calculateAll();">✕</button>
-            `;
+                <input type="text" placeholder="Name" class="val-name" value="${savedData?.name || ''}" oninput="calculateAll()">
+                <input type="number" placeholder="C" class="val-coef" value="${savedData?.coef || ''}" oninput="calculateAll()">
+                <input type="number" placeholder="TD" class="val-td" value="${savedData?.td || ''}" oninput="validateGrade(this)">
+                <input type="number" placeholder="Ex" class="val-exam" value="${savedData?.exam || ''}" oninput="validateGrade(this)">
+                <div style="font-weight:800; color:var(--primary); text-align:center" class="m-final hide-mobile">0.00</div>
+                <button class="btn" style="color:#ef4444; background:none; padding:0" onclick="document.getElementById('${id}').remove(); calculateAll();">✕</button>`;
             document.getElementById('module-list').appendChild(div);
+            calculateAll();
         }
 
         function calculateAll() {
@@ -124,26 +101,41 @@
             let tP = 0, tC = 0, saveArr = [];
 
             rows.forEach(row => {
-                const coef = parseFloat(row.querySelector('.m-coef').value) || 0;
-                const td = parseFloat(row.querySelector('.m-td').value);
-                const exam = parseFloat(row.querySelector('.m-exam').value) || 0;
+                const cIn = row.querySelector('.val-coef');
+                if(!cIn) return;
+                const coef = parseFloat(cIn.value) || 0;
+                const td = parseFloat(row.querySelector('.val-td').value);
+                const ex = parseFloat(row.querySelector('.val-exam').value) || 0;
                 
-                let final = isNaN(td) ? exam : (td * (currentTD/100)) + (exam * (currentExam/100));
-                row.querySelector('.m-final').innerText = final.toFixed(2);
+                let final = isNaN(td) ? ex : (td * (currentTD/100)) + (ex * (currentExam/100));
+                const fDisp = row.querySelector('.m-final');
+                if(fDisp) fDisp.innerText = final.toFixed(2);
                 
                 if (coef > 0) { tP += (final * coef); tC += coef; }
-                saveArr.push({ name: row.querySelector('.m-name').value, coef: row.querySelector('.m-coef').value, td: row.querySelector('.m-td').value, exam: row.querySelector('.m-exam').value });
+                saveArr.push({ name: row.querySelector('.val-name').value, coef: cIn.value, td: row.querySelector('.val-td').value, exam: row.querySelector('.val-exam').value });
             });
 
             const avg = tC > 0 ? (tP / tC).toFixed(2) : "0.00";
             document.getElementById('total-avg').innerText = avg;
-            document.getElementById('status').innerText = avg >= 10 ? "PASSED ✅" : "RETAKE 📚";
-            localStorage.setItem('mod_data', JSON.stringify(saveArr));
+            
+            const box = document.getElementById('avg-box');
+            const status = document.getElementById('status');
+            
+            if(parseFloat(avg) >= 10) {
+                box.className = 'avg-display pass';
+                status.innerText = "PASSED ✅";
+            } else if(parseFloat(avg) > 0) {
+                box.className = 'avg-display fail';
+                status.innerText = "FAILED ❌";
+            } else {
+                box.className = 'avg-display';
+                status.innerText = "READY";
+            }
+            localStorage.setItem('mod_final_v3', JSON.stringify(saveArr));
         }
 
         function takeScreenshot() {
-            const area = document.getElementById('capture-area');
-            html2canvas(area, { backgroundColor: null, scale: 2 }).then(canvas => {
+            html2canvas(document.getElementById('capture-area'), { backgroundColor: null, scale: 3 }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = 'Moduley-Results.png';
                 link.href = canvas.toDataURL();
@@ -152,7 +144,7 @@
         }
 
         window.onload = () => {
-            const saved = JSON.parse(localStorage.getItem('mod_data') || '[]');
+            const saved = JSON.parse(localStorage.getItem('mod_final_v3') || '[]');
             if(saved.length > 0) saved.forEach(m => addModule(m)); else addModule();
             calculateAll();
         };
