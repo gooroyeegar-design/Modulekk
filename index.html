@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moduley | Instant Calculator</title>
+    <title>Moduley | The Pro Calculator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --text-sub: #64748b; --primary: #4f46e5; --border: #e2e8f0; --input-bg: #f1f5f9; --accent: #10b981; --fail: #ef4444; }
@@ -20,14 +21,21 @@
         .weight-selector { display: flex; gap: 8px; margin-bottom: 20px; justify-content: center; }
         .weight-chip { padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); font-size: 0.75rem; font-weight: 700; cursor: pointer; }
         .weight-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .module-grid { display: grid; grid-template-columns: 2fr 0.7fr 0.8fr 0.8fr 0.8fr 35px; gap: 8px; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
-        @media (max-width: 500px) { .module-grid { grid-template-columns: 1.2fr 0.6fr 0.7fr 0.7fr 30px; } .hide-mobile { display: none; } }
-        input { background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 12px; width: 100%; box-sizing: border-box; font-size: 0.9rem; font-weight: 700; outline: none; }
-        input:focus { border-color: var(--primary); }
+        
+        /* New Module Row Design */
+        .module-grid { display: grid; grid-template-columns: 1.5fr 0.6fr 0.8fr 0.8fr 0.8fr 35px; gap: 8px; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        @media (max-width: 500px) { .module-grid { grid-template-columns: 1.2fr 0.5fr 0.8fr 0.8fr 30px; } .hide-mobile { display: none; } }
+        
+        input { background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 12px; width: 100%; box-sizing: border-box; font-size: 0.85rem; font-weight: 700; outline: none; }
+        
+        /* TD Toggle Style */
+        .td-toggle { cursor: pointer; font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 8px; background: var(--input-bg); color: var(--text-sub); border: 1px solid var(--border); text-align: center; display: block; margin-top: 5px; }
+        .td-toggle.active { background: var(--primary); color: white; border-color: var(--primary); }
+
         .avg-display { background: var(--primary); color: white; border-radius: 24px; padding: 30px; text-align: center; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .avg-num { font-size: 3.5rem; font-weight: 800; margin: 5px 0; }
-        .pass { background: var(--accent) !important; box-shadow: 0 15px 30px -10px rgba(16, 185, 129, 0.5); }
-        .fail { background: var(--fail) !important; box-shadow: 0 15px 30px -10px rgba(239, 68, 68, 0.5); }
+        .pass { background: var(--accent) !important; box-shadow: 0 15px 40px -10px rgba(16, 185, 129, 0.6); transform: scale(1.02); }
+        .fail { background: var(--fail) !important; }
     </style>
 </head>
 <body>
@@ -35,20 +43,26 @@
         <h1 style="margin:0; font-weight:800; font-size: 1.6rem; color: var(--primary);">Moduley.</h1>
         <button class="btn btn-outline" onclick="toggleTheme()" id="tBtn">🌙</button>
     </header>
+
     <div id="app">
         <div class="weight-selector">
             <div class="weight-chip active" onclick="setWeight(40, 60, this)">40/60</div>
             <div class="weight-chip" onclick="setWeight(50, 50, this)">50/50</div>
             <div class="weight-chip" onclick="setWeight(30, 70, this)">30/70</div>
         </div>
+
         <div id="capture-area">
             <div class="card">
                 <div class="module-grid hide-mobile" style="border:none; margin-bottom:5px;">
-                    <label>Module</label><label>Coef</label><label>TD</label><label>Exam</label><label>Final</label>
+                    <label style="font-size:0.6rem; font-weight:800; color:var(--text-sub);">MODULE</label>
+                    <label style="font-size:0.6rem; font-weight:800; color:var(--text-sub);">COEF</label>
+                    <label style="font-size:0.6rem; font-weight:800; color:var(--text-sub);">TD / EXAM</label>
+                    <label style="font-size:0.6rem; font-weight:800; color:var(--text-sub);">FINAL</label>
                 </div>
                 <div id="module-list"></div>
-                <button class="btn btn-primary" style="background: var(--input-bg); color: var(--primary); border: 1px dashed var(--primary);" onclick="addModule()">+ Add Module</button>
+                <button class="btn btn-primary" style="background: var(--input-bg); color: var(--primary); border: 1px dashed var(--primary); margin-top:10px;" onclick="addModule()">+ Add Module</button>
             </div>
+
             <div class="avg-display" id="avg-box">
                 <div style="font-size: 0.75rem; font-weight: 800; opacity: 0.9; letter-spacing:1px;">SEMESTER AVERAGE</div>
                 <div class="avg-num" id="total-avg">0.00</div>
@@ -57,8 +71,10 @@
         </div>
         <button class="btn btn-secondary" onclick="takeScreenshot()">📸 Save as Image</button>
     </div>
+
     <script>
-        let currentTD = 40, currentExam = 60;
+        let currentTD = 40, currentExam = 60, hasCelebrated = false;
+
         function toggleTheme() {
             const b = document.documentElement;
             const isD = b.getAttribute('data-theme') === 'dark';
@@ -80,16 +96,32 @@
             calculateAll();
         }
 
+        function toggleTD(btn, id) {
+            btn.classList.toggle('active');
+            btn.innerText = btn.classList.contains('active') ? 'TD ON' : 'NO TD';
+            const tdInput = document.querySelector(`#${id} .val-td`);
+            tdInput.style.display = btn.classList.contains('active') ? 'block' : 'none';
+            if(!btn.classList.contains('active')) tdInput.value = '';
+            calculateAll();
+        }
+
         function addModule(savedData = null) {
-            const id = 'm-' + Date.now() + Math.random();
+            const id = 'm' + Math.random().toString(36).substr(2, 9);
             const div = document.createElement('div');
             div.className = 'module-grid';
             div.id = id;
+            const isTDActive = savedData ? savedData.hasTD : true;
+            
             div.innerHTML = `
-                <input type="text" placeholder="Name" class="val-name" value="${savedData?.name || ''}" oninput="calculateAll()">
+                <div>
+                    <input type="text" placeholder="Name" class="val-name" value="${savedData?.name || ''}" oninput="calculateAll()">
+                    <span class="td-toggle ${isTDActive ? 'active' : ''}" onclick="toggleTD(this, '${id}')">${isTDActive ? 'TD ON' : 'NO TD'}</span>
+                </div>
                 <input type="number" placeholder="C" class="val-coef" value="${savedData?.coef || ''}" oninput="calculateAll()">
-                <input type="number" placeholder="TD" class="val-td" value="${savedData?.td || ''}" oninput="validateGrade(this)">
-                <input type="number" placeholder="Ex" class="val-exam" value="${savedData?.exam || ''}" oninput="validateGrade(this)">
+                <div style="display:flex; flex-direction:column; gap:5px;">
+                    <input type="number" placeholder="TD" class="val-td" value="${savedData?.td || ''}" oninput="validateGrade(this)" style="display: ${isTDActive ? 'block' : 'none'}">
+                    <input type="number" placeholder="Ex" class="val-exam" value="${savedData?.exam || ''}" oninput="validateGrade(this)">
+                </div>
                 <div style="font-weight:800; color:var(--primary); text-align:center" class="m-final hide-mobile">0.00</div>
                 <button class="btn" style="color:#ef4444; background:none; padding:0" onclick="document.getElementById('${id}').remove(); calculateAll();">✕</button>`;
             document.getElementById('module-list').appendChild(div);
@@ -104,15 +136,18 @@
                 const cIn = row.querySelector('.val-coef');
                 if(!cIn) return;
                 const coef = parseFloat(cIn.value) || 0;
-                const td = parseFloat(row.querySelector('.val-td').value);
+                const tdInput = row.querySelector('.val-td');
+                const td = parseFloat(tdInput.value);
                 const ex = parseFloat(row.querySelector('.val-exam').value) || 0;
+                const isTDActive = row.querySelector('.td-toggle').classList.contains('active');
                 
-                let final = isNaN(td) ? ex : (td * (currentTD/100)) + (ex * (currentExam/100));
+                let final = (!isTDActive || isNaN(td)) ? ex : (td * (currentTD/100)) + (ex * (currentExam/100));
+                
                 const fDisp = row.querySelector('.m-final');
                 if(fDisp) fDisp.innerText = final.toFixed(2);
                 
                 if (coef > 0) { tP += (final * coef); tC += coef; }
-                saveArr.push({ name: row.querySelector('.val-name').value, coef: cIn.value, td: row.querySelector('.val-td').value, exam: row.querySelector('.val-exam').value });
+                saveArr.push({ name: row.querySelector('.val-name').value, coef: cIn.value, td: tdInput.value, exam: ex, hasTD: isTDActive });
             });
 
             const avg = tC > 0 ? (tP / tC).toFixed(2) : "0.00";
@@ -120,18 +155,25 @@
             
             const box = document.getElementById('avg-box');
             const status = document.getElementById('status');
+            const numericAvg = parseFloat(avg);
             
-            if(parseFloat(avg) >= 10) {
+            if(numericAvg >= 10) {
                 box.className = 'avg-display pass';
                 status.innerText = "PASSED ✅";
-            } else if(parseFloat(avg) > 0) {
+                if(!hasCelebrated && numericAvg >= 10) {
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#10b981', '#4f46e5', '#ffffff'] });
+                    hasCelebrated = true;
+                }
+            } else if(numericAvg > 0) {
                 box.className = 'avg-display fail';
                 status.innerText = "FAILED ❌";
+                hasCelebrated = false;
             } else {
                 box.className = 'avg-display';
                 status.innerText = "READY";
+                hasCelebrated = false;
             }
-            localStorage.setItem('mod_final_v3', JSON.stringify(saveArr));
+            localStorage.setItem('mod_final_vFinal', JSON.stringify(saveArr));
         }
 
         function takeScreenshot() {
@@ -144,7 +186,7 @@
         }
 
         window.onload = () => {
-            const saved = JSON.parse(localStorage.getItem('mod_final_v3') || '[]');
+            const saved = JSON.parse(localStorage.getItem('mod_final_vFinal') || '[]');
             if(saved.length > 0) saved.forEach(m => addModule(m)); else addModule();
             calculateAll();
         };
